@@ -2,27 +2,27 @@
 # requires-python = ">=3.14"
 # dependencies = [
 #     "pyqt5>=5.15.11",
-#     "yt-dlp>=2025.12.8",
+#     "yt-dlp",
 # ]
 # ///
+import sys
 from threading import Thread
 
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
     QComboBox,
-    QTextEdit,
     QFormLayout,
     QGroupBox,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtCore import QTimer, QObject, pyqtSignal
 from yt_dlp import YoutubeDL
-import sys
 
 
 class LogSignal(QObject):
