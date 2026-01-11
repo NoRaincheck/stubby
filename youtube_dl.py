@@ -11,6 +11,7 @@ from threading import Thread
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QFormLayout,
     QGroupBox,
@@ -30,31 +31,42 @@ class LogSignal(QObject):
 
 
 class AsyncTask(Thread):
-    def __init__(self, url, download_config, log_signal):
+    def __init__(self, url, download_config, log_signal, write_subs=False):
         super().__init__()
 
         self.html = None
         self.url = url
         self.download_config = download_config
         self.log_signal = log_signal
+        self.write_subs = write_subs
 
     def run(self):
         # Custom logger class to emit signals to the GUI
         class Logger:
+            def __init__(self, log_signal):
+                self.log_signal = log_signal
+
             def debug(self, msg):
-                self.log_signal.emit(f"DEBUG: {msg}")
+                self.log_signal.log_signal.emit(f"DEBUG: {msg}")
 
             def warning(self, msg):
-                self.log_signal.emit(f"WARNING: {msg}")
+                self.log_signal.log_signal.emit(f"WARNING: {msg}")
 
             def error(self, msg):
-                self.log_signal.emit(f"ERROR: {msg}")
+                self.log_signal.log_signal.emit(f"ERROR: {msg}")
 
-        logger_instance = Logger()
-        logger_instance.log_signal = self.log_signal
+        logger_instance = Logger(self.log_signal)
 
-        params = OPTIONS.get(self.download_config, OPTION_480P)
+        params = OPTIONS.get(self.download_config, OPTION_480P).copy()
         params["logger"] = logger_instance
+
+        # Add subtitle option if selected
+        if self.write_subs:
+            params["writeautomaticsub"] = True
+            params["subtitlesformat"] = "srt"
+
+        print(params)
+
         with YoutubeDL(params) as ydl:
             ydl.download([self.url])
 
@@ -141,6 +153,11 @@ class YouTubeDownloaderApp(QMainWindow):
         self.download_config_combo.setCurrentText(OPTION_DEFAULT)
         form_layout.addRow("Quality:", self.download_config_combo)
 
+        # Subtitles checkbox
+        self.subtitles_checkbox = QCheckBox("Download Subtitles")
+        self.subtitles_checkbox.setChecked(False)
+        form_layout.addRow("", self.subtitles_checkbox)
+
         # Add form group to main layout
         main_layout.addWidget(form_group)
 
@@ -184,7 +201,8 @@ class YouTubeDownloaderApp(QMainWindow):
         # Create and start download thread
         url = self.url_input.text()
         config = self.download_config_combo.currentText()
-        self.job = AsyncTask(url, config, self.log_signal)
+        write_subs = self.subtitles_checkbox.isChecked()
+        self.job = AsyncTask(url, config, self.log_signal, write_subs)
         self.job.start()
 
         # Check periodically if job is still running
