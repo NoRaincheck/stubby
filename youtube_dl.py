@@ -99,6 +99,18 @@ OPTION_480P = {
     "retries": 10,
 }
 
+OPTION_720P = {
+    "extract_flat": "discard_in_playlist",
+    "format": "(mp4)[height<=720]+ba/(mp4)[height<=720] / wv*+ba/w",
+    "fragment_retries": 10,
+    "ignoreerrors": "only_download",
+    "postprocessors": [
+        {"key": "FFmpegConcat", "only_multi_video": True, "when": "playlist"}
+    ],
+    "retries": 10,
+}
+
+
 OPTION_AUDIO_ONLY = {
     "extract_flat": "discard_in_playlist",
     "format": "(mp4)wa",
@@ -121,7 +133,12 @@ OPTION_144P = {
     "retries": 10,
 }
 
-OPTIONS = {"144p": OPTION_144P, "480p": OPTION_480P, "audio-only": OPTION_AUDIO_ONLY}
+OPTIONS = {
+    "144p": OPTION_144P,
+    "480p": OPTION_480P,
+    "720p": OPTION_720P,
+    "audio-only": OPTION_AUDIO_ONLY,
+}
 OPTION_DEFAULT = "480p"
 
 LOADING_INFO_DEFAULT = "Waiting..."
