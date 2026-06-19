@@ -111,6 +111,17 @@ OPTION_720P = {
 }
 
 
+OPTION_1440P = {
+    "extract_flat": "discard_in_playlist",
+    "format": "(mp4)[height<=1440]+ba/(mp4)[height<=1440] / wv*+ba/w",
+    "fragment_retries": 10,
+    "ignoreerrors": "only_download",
+    "postprocessors": [
+        {"key": "FFmpegConcat", "only_multi_video": True, "when": "playlist"}
+    ],
+    "retries": 10,
+}
+
 OPTION_AUDIO_ONLY = {
     "extract_flat": "discard_in_playlist",
     "format": "(mp4)wa",
@@ -137,6 +148,7 @@ OPTIONS = {
     "144p": OPTION_144P,
     "480p": OPTION_480P,
     "720p": OPTION_720P,
+    "1440p": OPTION_1440P,
     "audio-only": OPTION_AUDIO_ONLY,
 }
 OPTION_DEFAULT = "480p"
